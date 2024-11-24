@@ -24,7 +24,8 @@ def load_model(config_name, checkpoint_path, device="cuda"):
 
     model = instantiate(cfg)
     state_dict = torch.load(
-        checkpoint_path, map_location=device, mmap=True, weights_only=True
+        checkpoint_path,
+        map_location=device,
     )
     if "state_dict" in state_dict:
         state_dict = state_dict["state_dict"]
@@ -36,7 +37,7 @@ def load_model(config_name, checkpoint_path, device="cuda"):
             if "generator." in k
         }
 
-    result = model.load_state_dict(state_dict, strict=False, assign=True)
+    result = model.load_state_dict(state_dict, strict=False)
     model.eval()
     model.to(device)
 

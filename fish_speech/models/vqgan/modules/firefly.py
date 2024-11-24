@@ -102,8 +102,8 @@ class FishConvNet(nn.Module):
         self.conv = weight_norm(self.conv, name=name, dim=dim)
         return self
 
-    def remove_parametrizations(self, name="weight"):
-        self.conv = remove_parametrizations(self.conv, name)
+    def remove_weight_norm(self):
+        self.conv = remove_parametrizations(self.conv)
         return self
 
 
@@ -128,8 +128,8 @@ class FishTransConvNet(nn.Module):
         self.conv = weight_norm(self.conv, name=name, dim=dim)
         return self
 
-    def remove_parametrizations(self, name="weight"):
-        self.conv = remove_parametrizations(self.conv, name)
+    def remove_weight_norm(self):
+        self.conv = remove_parametrizations(self.conv)
         return self
 
 
@@ -178,9 +178,9 @@ class ResBlock1(torch.nn.Module):
 
     def remove_parametrizations(self):
         for conv in self.convs1:
-            conv.remove_parametrizations()
+            remove_parametrizations(conv, tensor_name="weight")
         for conv in self.convs2:
-            conv.remove_parametrizations()
+            remove_parametrizations(conv, tensor_name="weight")
 
 
 class ParallelBlock(nn.Module):
@@ -288,11 +288,11 @@ class HiFiGANGenerator(nn.Module):
 
     def remove_parametrizations(self):
         for up in self.ups:
-            up.remove_parametrizations()
+            remove_parametrizations(up, tensor_name="weight")
         for block in self.resblocks:
             block.remove_parametrizations()
-        self.conv_pre.remove_parametrizations()
-        self.conv_post.remove_parametrizations()
+        remove_parametrizations(self.conv_pre, tensor_name="weight")
+        remove_parametrizations(self.conv_post, tensor_name="weight")
 
 
 # DropPath copied from timm library
