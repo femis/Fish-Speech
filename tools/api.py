@@ -87,9 +87,9 @@ async def other_exception_handler(exc: "Exception"):
 
 
 def load_audio(reference_audio, sr):
-    if len(reference_audio) > 255 or not Path(reference_audio).exists():
-        audio_data = reference_audio
-        reference_audio = io.BytesIO(audio_data)
+    logger.info(f"即将加载音频: {reference_audio}")
+    reference_audio = reference_audio.decode('utf-8')
+    logger.info(f"音频转换: {reference_audio}")
 
     waveform, original_sr = torchaudio.load(
         reference_audio, backend="ffmpeg" if sys.platform == "linux" else "soundfile"
