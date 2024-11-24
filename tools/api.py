@@ -88,8 +88,13 @@ async def other_exception_handler(exc: "Exception"):
 
 def load_audio(reference_audio, sr):
     logger.info(f"即将加载音频: {reference_audio}")
-    reference_audio = reference_audio.decode('utf-8')
-    logger.info(f"音频转换: {reference_audio}")
+    if isinstance(reference_audio, bytes):
+        reference_audio = reference_audio.decode('utf-8')
+        logger.info(f"音频转换: {reference_audio}")
+
+    if len(reference_audio) > 255 or not Path(reference_audio).exists():
+        audio_data = reference_audio
+        reference_audio = io.BytesIO(audio_data)
 
     waveform, original_sr = torchaudio.load(
         reference_audio, backend="ffmpeg" if sys.platform == "linux" else "soundfile"
@@ -358,7 +363,7 @@ def parse_args():
     parser.add_argument("--compile", action="store_true")
     parser.add_argument("--max-text-length", type=int, default=0)
     parser.add_argument("--listen", type=str, default="127.0.0.1:8080")
-    parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--workers", type=int, default=4)
 
     return parser.parse_args()
 
@@ -437,4 +442,4 @@ if __name__ == "__main__":
 
     logger.info(f"Warming up done, starting server at http://{args.listen}")
     host, port = args.listen.split(":")
-    uvicorn.run(app, host=host, port=int(port), workers=args.workers, log_level="info")
+    uvicorn.run(app="tools.api:app", host=host, port=int(port), workers=args.workers, log_level="info", reload=False)
